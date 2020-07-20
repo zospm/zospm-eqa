@@ -8,15 +8,15 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*} 
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*} 
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 	#!/bin/sh
-	export PATH=${zbrewdir}:\$PATH
-	. zbrewsetswenv eqae20
-	. \$ZBREW_REPOROOT/zbrew-eqa/eqafuncs
+	export PATH=${zospmdir}:\$PATH
+	. zospmsetswenv eqae20
+	. \$ZOSPM_REPOROOT/zospm-eqa/eqafuncs
 	export PRODUCT_CODE="$PRODUCT_CODE"
 
 	if ! \`supportsDebugManager "\$PRODUCT_CODE"\`; then
@@ -101,8 +101,8 @@ ENDAUTOLOG"
 		profhdr="; EQAE20 start ;"
 		profftr="; EQAE20 end ;"
 
-		registrar "EQAE20" "${verb}" "\${ZBREW_TGT_HLQ}TCPPARMS" "TCPPROF" "\$profhdr" "\$profftr" ";" ";" "\${text}"
-		chk "\$?" "Unable to register \${ZBREW_TGT_HLQ}TCPPARMS(TCPPROF)"
+		registrar "EQAE20" "${verb}" "\${ZOSPM_TGT_HLQ}TCPPARMS" "TCPPROF" "\$profhdr" "\$profftr" ";" ";" "\${text}"
+		chk "\$?" "Unable to register \${ZOSPM_TGT_HLQ}TCPPARMS(TCPPROF)"
 	fi
 EOF
 
@@ -140,7 +140,7 @@ EOF
 else
 	cat << EOF >>${script}
 	pagentdataset=\`procwhence PAGENT 2>&1\`
-	if [ "\$pagentdataset" = "\${ZBREW_TGT_HLQ}PROCLIB" ]; then
+	if [ "\$pagentdataset" = "\${ZOSPM_TGT_HLQ}PROCLIB" ]; then
 		opercmd "STOP PAGENT" >/dev/null 2>&1
 		chk "\$?" "Unable to stop PAGENT started task"
 		procregistrar "EQAE20" "${verb}" "PAGENT" "\${pagenttask}"	

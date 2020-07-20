@@ -8,15 +8,15 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*} 
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*} 
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 #!/bin/sh
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetswenv eqae20
-. \$ZBREW_REPOROOT/zbrew-eqa/eqafuncs
+export PATH=${zospmdir}:\$PATH
+. zospmsetswenv eqae20
+. \$ZOSPM_REPOROOT/zospm-eqa/eqafuncs
 if ! \`supportsCICS \`; then
 	exit 0
 fi
@@ -31,7 +31,7 @@ chmod u+x "${script}"
 
 if [ "${verb}" = "DISABLE" ]; then
 	cat << EOF >>${script}
-	procregistrar eqae20 disable \${ZBREW_DFH_PROC}
+	procregistrar eqae20 disable \${ZOSPM_DFH_PROC}
 	chk "\$?" "Unable to configure EQAE20"
 	ccsdregistrar eqae20 disable
 	chk "\$?" "Unable to configure EQAE20"
@@ -43,7 +43,7 @@ else
 	cat << EOF >>${script}
 	#
 	# Stop CICS started task
-	# Copy the CICS CCSD to a ZBREW CCSD
+	# Copy the CICS CCSD to a ZOSPM CCSD
 	# Register the Debug CCSD 
 	# Add the debugger modules to the DFHRPL concatenation
 	# Update the CICS SYSIN to include the CICS grouplist 
@@ -53,20 +53,20 @@ else
 	#
 	# Stop CICS region to make changes to it
 	#
-	stopCICS "\${ZBREW_DFH_PROC}"
-	chk "\$?" "Unable to stop CICS region \${ZBREW_DFH_PROC}"
+	stopCICS "\${ZOSPM_DFH_PROC}"
+	chk "\$?" "Unable to stop CICS region \${ZOSPM_DFH_PROC}"
 
 	#
-	# Copy the CICS CCSD to ZBREW CCSD
+	# Copy the CICS CCSD to ZOSPM CCSD
 	#
-	if ! \`vsamexists \${ZBREW_TGT_HLQ}CICS.DFHCSD \` ; then
-		vsamcp \${ZBREW_DFHHLQ}.CICS.DFHCSD \${ZBREW_TGT_HLQ}CICS.DFHCSD 
+	if ! \`vsamexists \${ZOSPM_TGT_HLQ}CICS.DFHCSD \` ; then
+		vsamcp \${ZOSPM_DFHHLQ}.CICS.DFHCSD \${ZOSPM_TGT_HLQ}CICS.DFHCSD 
 	fi
 
 	#
 	# remove the ADD GROUP line at the end of the CCSD sample, but keep everything else and register the Debug CCSD
 	# 
-	ccsd=\`cat "//'\${ZBREW_TGT_HLQ}EQAE20.SEQASAMP(EQACCSD)'" | awk ' /[ ]*ADD[ ]+GROUP/ { print "*"; next; } // {print}'\`
+	ccsd=\`cat "//'\${ZOSPM_TGT_HLQ}EQAE20.SEQASAMP(EQACCSD)'" | awk ' /[ ]*ADD[ ]+GROUP/ { print "*"; next; } // {print}'\`
 	ccsdregistrar eqae20 ${verb} "\${ccsd}"
 	chk "\$?" "Unable to configure EQAE20"
 
@@ -103,32 +103,32 @@ else
 	#
 	# update the JCL to include Debug datasets
 	# 
-	jcl=\`cat "//'\${ZBREW_DFH_PROCLIB}(\${ZBREW_DFH_PROC})'"\`
-	chk "\$?" "Unable to add \${ZBREW_TGT_HLQ}EQAE20.SEQAMOD to CICS proclib \${ZBREW_DFH_PROCLIB}(\${ZBREW_DFH_PROC})"
+	jcl=\`cat "//'\${ZOSPM_DFH_PROCLIB}(\${ZOSPM_DFH_PROC})'"\`
+	chk "\$?" "Unable to add \${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD to CICS proclib \${ZOSPM_DFH_PROCLIB}(\${ZOSPM_DFH_PROC})"
 
 	step=\`echo "\${jcl}" | awk '/\/\/[A-Z0-9\\$#@]+[ ]+EXEC[ ]+PGM=DFHSIP/ { print substr(\$1,3) }'\`
-	chk "\$?" "JCL \${ZBREW_DFH_PROCLIB}(\${ZBREW_DFH_PROC}) does not invoke CICS program DFHSIP" 
+	chk "\$?" "JCL \${ZOSPM_DFH_PROCLIB}(\${ZOSPM_DFH_PROC}) does not invoke CICS program DFHSIP" 
 
-	jcl=\`jclAddDatasetToDD "\${jcl}" "\${step}" "DFHRPL" "\${ZBREW_TGT_HLQ}EQAE20.SEQAMOD"\`
-	chk "\$?" "Unable to add \${ZBREW_TGT_HLQ}EQAE20.SEQAMOD to CICS started task \${ZBREW_DFH_PROCLIB}(\${ZBREW_DFH_PROC})"
+	jcl=\`jclAddDatasetToDD "\${jcl}" "\${step}" "DFHRPL" "\${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD"\`
+	chk "\$?" "Unable to add \${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD to CICS started task \${ZOSPM_DFH_PROCLIB}(\${ZOSPM_DFH_PROC})"
 
-	jcl=\`jclReplaceDD "\${jcl}" "\${step}" "DFHCSD" "\${ZBREW_TGT_HLQ}CICS.DFHCSD"\`
-	chk "\$?" "Unable to change CICS SYSIN for \${ZBREW_DFH_PROC} to \${ZBREW_TGT_HLQ}SYSIN(\${ZBREW_DFH_SYSIN_TRAN})"
+	jcl=\`jclReplaceDD "\${jcl}" "\${step}" "DFHCSD" "\${ZOSPM_TGT_HLQ}CICS.DFHCSD"\`
+	chk "\$?" "Unable to change CICS SYSIN for \${ZOSPM_DFH_PROC} to \${ZOSPM_TGT_HLQ}SYSIN(\${ZOSPM_DFH_SYSIN_TRAN})"
 
-	jcl=\`jclReplaceDD "\${jcl}" "\${step}" "SYSIN" "\${ZBREW_TGT_HLQ}SYSIN(\${ZBREW_DFH_SYSIN_TRAN_JCL})"\`
-	chk "\$?" "Unable to change CICS SYSIN for \${ZBREW_DFH_PROC} to \${ZBREW_TGT_HLQ}SYSIN(\${ZBREW_DFH_SYSIN_TRAN})"
+	jcl=\`jclReplaceDD "\${jcl}" "\${step}" "SYSIN" "\${ZOSPM_TGT_HLQ}SYSIN(\${ZOSPM_DFH_SYSIN_TRAN_JCL})"\`
+	chk "\$?" "Unable to change CICS SYSIN for \${ZOSPM_DFH_PROC} to \${ZOSPM_TGT_HLQ}SYSIN(\${ZOSPM_DFH_SYSIN_TRAN})"
 
 	jcl=\`jclReplaceDD "\${jcl}" "\${step}" "EQADPFMB" "\${EQAE20_DTCNPROF}"\`
-	chk "\$?" "Unable to add DDName EQADPFMB, dataset \${EQAE20_DTCNPROF} to CICS started task \${ZBREW_DFH_PROCLIB}(\${ZBREW_DFH_PROC})"
+	chk "\$?" "Unable to add DDName EQADPFMB, dataset \${EQAE20_DTCNPROF} to CICS started task \${ZOSPM_DFH_PROCLIB}(\${ZOSPM_DFH_PROC})"
 
-	procregistrar eqae20 enable \${ZBREW_DFH_PROC} "\${jcl}"
+	procregistrar eqae20 enable \${ZOSPM_DFH_PROC} "\${jcl}"
 	chk "\$?" "Unable to configure EQAE20"
 
 	#
 	# update the startup parameters to enable basic security, if property explicitly set to do so
 	# 
-	sysin=\`cat "//'\${ZBREW_DFH_SYSIN}(\${ZBREW_DFH_SYSIN_TRAN})'"\`
-	if [ "\$ZBREW_DFH_SET_MINIMAL_SECURITY" = "YES" ]; then
+	sysin=\`cat "//'\${ZOSPM_DFH_SYSIN}(\${ZOSPM_DFH_SYSIN_TRAN})'"\`
+	if [ "\$ZOSPM_DFH_SET_MINIMAL_SECURITY" = "YES" ]; then
 		sysin=\`cicsSYSINUpdate "\${sysin}" "SEC" "YES" \`  ; rc1=\$?
 		sysin=\`cicsSYSINUpdate "\${sysin}" "XTRAN" "NO"\`  ; rc2=\$?
 		sysin=\`cicsSYSINUpdate "\${sysin}" "XCMD" "NO" \`  ; rc3=\$?
@@ -149,14 +149,14 @@ else
 	suffix="*"
 	hdr="\${prefix} EQAE20 Start \${suffix}"
 	ftr="\${prefix} EQAE20 End \${suffix}"
-	registrar eqae20 enable \${ZBREW_TGT_HLQ}SYSIN "\${ZBREW_DFH_SYSIN_TRAN}" "\${hdr}" "\${ftr}" "\${prefix}" "\${suffix}" "\${sysin}" 
-	chk "\$?" "Unable to update the CICS SYSIN member \${ZBREW_TGT_HLQ}SYSIN \${ZBREW_DFH_SYSIN_TRAN}"
+	registrar eqae20 enable \${ZOSPM_TGT_HLQ}SYSIN "\${ZOSPM_DFH_SYSIN_TRAN}" "\${hdr}" "\${ftr}" "\${prefix}" "\${suffix}" "\${sysin}" 
+	chk "\$?" "Unable to update the CICS SYSIN member \${ZOSPM_TGT_HLQ}SYSIN \${ZOSPM_DFH_SYSIN_TRAN}"
 
 	#
 	# Start CICS region with debug enabled
 	#
-	startCICS "\${ZBREW_DFH_PROC}"
-	chk "\$?" "Unable to start CICS region \${ZBREW_DFH_PROC}"
+	startCICS "\${ZOSPM_DFH_PROC}"
+	chk "\$?" "Unable to start CICS region \${ZOSPM_DFH_PROC}"
 
 	exit 0
 EOF

@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# This should get pulled into the BOM for EQAE20 and general configure from zbrew
+# This should get pulled into the BOM for EQAE20 and general configure from zospm
 #
 if ! [ $# -eq 2 ]; then
 	echo "Syntax: configregistration ENABLE|DISABLE <output-script>" >&2
@@ -13,9 +13,9 @@ fi
 
 verb="$1"
 script="$2"
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*}
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*}
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 #!/bin/sh
@@ -23,8 +23,8 @@ cat << EOF >${script}
 export PRODUCT_CODE="${PRODUCT_CODE}"
 export PRODUCT_NAME="${PRODUCT_NAME}"
 export FEATURE_NAME="${FEATURE_NAME}"
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetenv
+export PATH=${zospmdir}:\$PATH
+. zospmsetenv
 
 enablementText="PRODUCT OWNER('IBM CORP')
 	NAME('\${PRODUCT_NAME}')

@@ -1,2 +1,2 @@
-# zbrew-eqa
-Repository to populate for Debug zbrew install
+# zospm-eqa
+Repository to populate for Debug zospm install

@@ -1,11 +1,11 @@
 #!/bin/sh
 #set -x
-. zbrewsetenv
+. zospmsetenv
 
-props="${ZBREW_WORKROOT}/order/eqae20order.json"
-zbrewpropse eqae20 order "${props}"
+props="${ZOSPM_WORKROOT}/order/eqae20order.json"
+zospmpropse eqae20 order "${props}"
 
-eqaRoot="${ZBREW_WORKROOT}/config/eqae20"
+eqaRoot="${ZOSPM_WORKROOT}/config/eqae20"
 mkdir -p "${eqaRoot}"
 rc=$?
 if [ $rc -gt 0 ]; then

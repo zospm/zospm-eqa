@@ -7,20 +7,20 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*} 
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*} 
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 #!/bin/sh
 export PRODUCT_CODE="${PRODUCT_CODE}"
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetswenv eqae20
-. \$ZBREW_REPOROOT/zbrew-eqa/eqafuncs
+export PATH=${zospmdir}:\$PATH
+. zospmsetswenv eqae20
+. \$ZOSPM_REPOROOT/zospm-eqa/eqafuncs
 
-datasets="\${ZBREW_TGT_HLQ}EQAE20.SEQAMOD"
+datasets="\${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD"
 if  \`supportsMFI "\$PRODUCT_CODE"\`; then
-	datasets="\${datasets} \${ZBREW_TGT_HLQ}EQAE20.SEQABMOD"
+	datasets="\${datasets} \${ZOSPM_TGT_HLQ}EQAE20.SEQABMOD"
 fi
 llregistrar eqae20 ${verb} "\${datasets}"
 exit \$?

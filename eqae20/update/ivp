@@ -1,13 +1,13 @@
 #!/bin/sh
 
-. zbrewsetenv
-export PATH=$ZBREW_ROOT/testtools:$PATH
+. zospmsetenv
+export PATH=$ZOSPM_ROOT/testtools:$PATH
 
 copyasciifile() {
 #	set +x
 	iconvsrc=$1
 	iconvtgt=$2
-	tmp=${ZBREW_TMP}/$$.iconv
+	tmp=${ZOSPM_TMP}/$$.iconv
 	iconv -fISO8859-1 -tIBM-1047 <"${iconvsrc}" >"${tmp}"
 	if [ $? -gt 0 ]; then
 		"IVP: iconv failed copying from "${src}" to temporary file: ${tmp}" >&2
@@ -47,20 +47,20 @@ createdatasets() {
 	#
 	# Create temporary datasets
 	#
-	src=`mvstmp ${ZBREW_TGT_HLQ}IVPSRC`
-	list=`mvstmp ${ZBREW_TGT_HLQ}IVPLST`
-	fblist=`mvstmp ${ZBREW_TGT_HLQ}IVPFBLST`
-	adata=`mvstmp ${ZBREW_TGT_HLQ}IVPADA`
-	obj=`mvstmp ${ZBREW_TGT_HLQ}IVPOBJ`
-	langx=`mvstmp ${ZBREW_TGT_HLQ}IVPLGX`
-	cdbg=`mvstmp ${ZBREW_TGT_HLQ}IVPCDBG`
-	mod=`mvstmp ${ZBREW_TGT_HLQ}IVPMOD`
-	lib=`mvstmp ${ZBREW_TGT_HLQ}IVPLIB`
-	insplog=`mvstmp ${ZBREW_TGT_HLQ}IVPLOG`
-	sysprint=`mvstmp ${ZBREW_TGT_HLQ}IVPPRT`
-	pmap=`mvstmp ${ZBREW_TGT_HLQ}IVPPMAP`
-	sysout=`mvstmp ${ZBREW_TGT_HLQ}IVPOUT`
-	dbgcmd=`mvstmp ${ZBREW_TGT_HLQ}IVPCMD`
+	src=`mvstmp ${ZOSPM_TGT_HLQ}IVPSRC`
+	list=`mvstmp ${ZOSPM_TGT_HLQ}IVPLST`
+	fblist=`mvstmp ${ZOSPM_TGT_HLQ}IVPFBLST`
+	adata=`mvstmp ${ZOSPM_TGT_HLQ}IVPADA`
+	obj=`mvstmp ${ZOSPM_TGT_HLQ}IVPOBJ`
+	langx=`mvstmp ${ZOSPM_TGT_HLQ}IVPLGX`
+	cdbg=`mvstmp ${ZOSPM_TGT_HLQ}IVPCDBG`
+	mod=`mvstmp ${ZOSPM_TGT_HLQ}IVPMOD`
+	lib=`mvstmp ${ZOSPM_TGT_HLQ}IVPLIB`
+	insplog=`mvstmp ${ZOSPM_TGT_HLQ}IVPLOG`
+	sysprint=`mvstmp ${ZOSPM_TGT_HLQ}IVPPRT`
+	pmap=`mvstmp ${ZOSPM_TGT_HLQ}IVPPMAP`
+	sysout=`mvstmp ${ZOSPM_TGT_HLQ}IVPOUT`
+	dbgcmd=`mvstmp ${ZOSPM_TGT_HLQ}IVPCMD`
 
 	datasets="${src} ${list} ${fblist} ${pmap} ${adata} ${obj} ${langx} ${cdbg} ${mod} ${lib} ${insplog} ${sysprint} ${sysout} ${dbgcmd}"
 
@@ -113,7 +113,7 @@ ivppli() {
 		cleanup "IVP: Copy of PL/I source failed with rc: $rc. Source Dataset retained" "${src}" "${pgm}PL"
 	fi
 
-	export steplib="${ZBREW_IBMHLQ}.SIBMZCMP:${ZBREW_CEEHLQ}.SCEERUN"
+	export steplib="${ZOSPM_IBMHLQ}.SIBMZCMP:${ZOSPM_CEEHLQ}.SCEERUN"
 	export args="TEST(ALL,SYM,NOHOOK) NEST SYSTEM(MVS) NTERM STG S OP XREF NOPT INSOURCE"
 	export sysplin="${obj}(${pgm}PL)"
 	mvscmd --pgm=IBMZPLI --args="${args}" --syslin="${sysplin}" --sysprint="${list}(${pgm}PL)" --sysin="${src}(${pgm})"
@@ -122,8 +122,8 @@ ivppli() {
 		cleanup "IVP: PL/I compile failed with rc: $rc. Listing retained" "${list}" "${pgm}PL"
 	fi
 
-	export steplib="${ZBREW_CEEHLQ}.SCEERUN"
-	export sysmsgs="${ZBREW_CEEHLQ}.SCEEMSGP(EDCPMSGE)"
+	export steplib="${ZOSPM_CEEHLQ}.SCEERUN"
+	export sysmsgs="${ZOSPM_CEEHLQ}.SCEEMSGP(EDCPMSGE)"
 	export sysmod="${obj}(${pgm})"
 	export plprint="${list}(${pgm}P)"
 	mvscmd --pgm=EDCPRLK --args='NOMAP' --steplib="${steplib}" --sysout=dummy --syslib=dummy --sysdefsd=dummy --sysmsgs="${sysmsgs}" --sysin="${sysplin}" --sysmod="${sysmod}" --sysprint="${plprint}" 
@@ -135,7 +135,7 @@ ivppli() {
 	#
 	# link
 	#
-	export syslib="${ZBREW_CEEHLQ}.SCEELKED"
+	export syslib="${ZOSPM_CEEHLQ}.SCEELKED"
 	mvscmd --pgm=IEWBLINK --args="MAP" --object="${obj}(${pgm})" --syslib="${syslib}" --sysprint="${list}(${pgm}MP)" --syslmod="${lib}(${pgm})" --syslin="${sysmod}"
 	rc=$?
 	if [ $rc -gt 0 ]; then
@@ -152,7 +152,7 @@ ivppli() {
 		cleanup "IVP: Copy of PL/I debug command file failed with rc: $rc. Command file retained" "${dbgcmd}" "${pgm}"
 	fi
 
-	export steplib="${lib}:${ZBREW_TGT_HLQ}EQAE20.SEQAMOD:${ZBREW_CEEHLQ}.SCEERUN"
+	export steplib="${lib}:${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD:${ZOSPM_CEEHLQ}.SCEERUN"
 	mvscmd --pgm="${pgm}" --args='TEST(ALL,INSPIN,PROMPT,*)/' --steplib="${steplib}" --inspin="${dbgcmd}(${pgm})" --insplog="${insplog}(${pgm})" --sysout="${sysout}(${pgm})" --sysprint="${sysprint}(${pgm})"
 	rc=$?
 	if [ $rc -gt 0 ]; then
@@ -182,7 +182,7 @@ ivpcobol() {
 	for dd in $tempdd; do
 		tempparm="${tempparm} --${dd}=TEMP,VIO"
 	done
-	export steplib="${ZBREW_IGYHLQ}.SIGYCOMP:${ZBREW_CEEHLQ}.SCEERUN:${ZBREW_CEEHLQ}.SCEERUN2"
+	export steplib="${ZOSPM_IGYHLQ}.SIGYCOMP:${ZOSPM_CEEHLQ}.SCEERUN:${ZOSPM_CEEHLQ}.SCEERUN2"
 	export args="NONAME,NOTERM,TEST"
 	mvscmd --pgm=IGYCRCTL --args="${args}" ${tempparm} --syslin="${obj}(${pgm})" --sysprint="${fblist}(${pgm})" --sysin="${src}(${pgm})"
 	rc=$?
@@ -193,7 +193,7 @@ ivpcobol() {
 	#
 	# link
 	#
-	export syslib="${ZBREW_CEEHLQ}.SCEELKED:${ZBREW_CEEHLQ}.SCEELKEX"
+	export syslib="${ZOSPM_CEEHLQ}.SCEELKED:${ZOSPM_CEEHLQ}.SCEELKEX"
 	mvscmd --pgm=IEWBLINK --args="MAP" --object="${obj}(${pgm})" --syslib="${syslib}" --sysprint="${list}(${pgm}MP)" --syslmod="${lib}(${pgm})" --syslin=stdin <<zz
   INCLUDE OBJECT(${pgm})
   NAME ${pgm}(R)
@@ -213,7 +213,7 @@ zz
 		cleanup "IVP: Copy of COBOL debug command file failed with rc: $rc. Command file retained" "${dbgcmd}" "${pgm}"
 	fi
 
-	export steplib="${lib}:${ZBREW_TGT_HLQ}EQAE20.SEQAMOD:${ZBREW_CEEHLQ}.SCEERUN:${ZBREW_CEEHLQ}.SCEERUN2"
+	export steplib="${lib}:${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD:${ZOSPM_CEEHLQ}.SCEERUN:${ZOSPM_CEEHLQ}.SCEERUN2"
 	mvscmd --pgm="${pgm}" --args='/TEST(,CMDS,;,*) TRAP(ON)' --steplib="${steplib}" --cmds="${dbgcmd}(${pgm})" --insplog="${insplog}(${pgm})" --sysout="${sysout}(${pgm}G)"
 	rc=$?
 	if [ $rc -gt 0 ]; then
@@ -234,9 +234,9 @@ ivpc() {
 	pgm=EQAWCINM
 
 	opts='/xplink goff noopt,source,debug(format(dwarf),hook(line,noblock,path),symbol),xplink,rent'
-	steplib="${ZBREW_CEEHLQ}.SCEERUN2:${ZBREW_CBCHLQ}.SCCNCMP:${ZBREW_CEEHLQ}.SCEERUN"
-	syslib="${ZBREW_CEEHLQ}.SCEEH.H:${ZBREW_CEEHLQ}.SCEEH.SYS.H"
-	mvscmd --pgm=CCNDRVR --args="${opts}" --steplib="${steplib}" --syslin="${obj}(${pgm})" --syscdbg="${cdbg}(${pgm})" --syslib="${syslib}" --sysin="${ZBREW_SRC_HLQ}EQAE20.SEQASAMP(${pgm})" --sysout=* --sysprint=*
+	steplib="${ZOSPM_CEEHLQ}.SCEERUN2:${ZOSPM_CBCHLQ}.SCCNCMP:${ZOSPM_CEEHLQ}.SCEERUN"
+	syslib="${ZOSPM_CEEHLQ}.SCEEH.H:${ZOSPM_CEEHLQ}.SCEEH.SYS.H"
+	mvscmd --pgm=CCNDRVR --args="${opts}" --steplib="${steplib}" --syslin="${obj}(${pgm})" --syscdbg="${cdbg}(${pgm})" --syslib="${syslib}" --sysin="${ZOSPM_SRC_HLQ}EQAE20.SEQASAMP(${pgm})" --sysout=* --sysprint=*
 	rc=$?
 	if [ $rc -gt 0 ]; then
 		cleanup "IVP: Compile failed with rc: $rc. Listing retained" "${list}" "${pgm}"
@@ -246,9 +246,9 @@ ivpc() {
 	# Bind C code 
 	#
 	opts='AMODE=31,MAP,RENT,DYNAM=DLL,CASE=MIXED,LIST=NOIMP'
-	steplib="${ZBREW_CEEHLQ}.SCEERUN2:${ZBREW_CEEHLQ}.SCEERUN"
-	syslin="${obj}(${pgm}):${ZBREW_CEEHLQ}.SCEELIB(CELHS003):${ZBREW_CEEHLQ}.SCEELIB(CELHS001)"
-	mvscmd --pgm=IEWL --args="${opts}" --steplib="${steplib}" --syslib=${ZBREW_CEEHLQ}.SCEEBND2 --object=${obj} --syslmod="${lib}(${pgm})" --sysprint="${list}(${pgm})" --syslin="${syslin}" --sysdefsd=dummy 
+	steplib="${ZOSPM_CEEHLQ}.SCEERUN2:${ZOSPM_CEEHLQ}.SCEERUN"
+	syslin="${obj}(${pgm}):${ZOSPM_CEEHLQ}.SCEELIB(CELHS003):${ZOSPM_CEEHLQ}.SCEELIB(CELHS001)"
+	mvscmd --pgm=IEWL --args="${opts}" --steplib="${steplib}" --syslib=${ZOSPM_CEEHLQ}.SCEEBND2 --object=${obj} --syslmod="${lib}(${pgm})" --sysprint="${list}(${pgm})" --syslin="${syslin}" --sysdefsd=dummy 
 	rc=$?
 	if [ $rc -gt 0 ]; then
 		cleanup "IVP: C Bind failed with rc: $rc. Listing retained" "${list}" "${pgm}"
@@ -263,7 +263,7 @@ ivpc() {
 	if [ $rc -gt 0 ]; then
 		cleanup "IVP: Copy of C debug command file failed with rc: $rc. Command file retained" "${dbgcmd}" "${pgm}"
 	fi
-	steplib="${lib}:${ZBREW_TGT_HLQ}EQAE20.SEQAMOD:${ZBREW_CEEHLQ}.SCEERUN"
+	steplib="${lib}:${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD:${ZOSPM_CEEHLQ}.SCEERUN"
 	runargs="test(,CMDS,;,*) trap(on)/"
 	mvscmd --pgm=${pgm} --args="${runargs}" --steplib="${steplib}" --insplog="${insplog}(${pgm})" --cmds="${dbgcmd}(${pgm})" --sysout="${sysout}(${pgm})" 
 
@@ -293,7 +293,7 @@ ivpasm() {
 		cleanup "IVP: Copy of assembler source failed with rc: $rc. Source Dataset retained" "${src}" "${pgm}"
 	fi
 
-	mvscmd --pgm=ASMA90 --args='ADATA,OBJECT' --syslin="${obj}(${pgm})" --sysprint="${list}(${pgm})" --sysadata="${adata}(${pgm})" --syslib=${ZBREW_CEEHLQ}.SCEEMAC --sysin="${src}(${pgm})"
+	mvscmd --pgm=ASMA90 --args='ADATA,OBJECT' --syslin="${obj}(${pgm})" --sysprint="${list}(${pgm})" --sysadata="${adata}(${pgm})" --syslib=${ZOSPM_CEEHLQ}.SCEEMAC --sysin="${src}(${pgm})"
 	rc=$?
 	if [ $rc -gt 0 ]; then
 		cleanup "IVP: Assemble failed with rc: $rc. Listing retained" "${list}" "${pgm}"
@@ -302,7 +302,7 @@ ivpasm() {
 	#
 	# Extract Debug Data into EQALANGX format
 	#
-	steplib="${ZBREW_TGT_HLQ}EQAE20.SIPVMODA:${ZBREW_CEEHLQ}.SCEERUN"
+	steplib="${ZOSPM_TGT_HLQ}EQAE20.SIPVMODA:${ZOSPM_CEEHLQ}.SCEERUN"
 	mvscmd --pgm=EQALANGX --args='(ASM ERROR' --steplib="${steplib}" --sysadata="${adata}(${pgm})" --idilangx="${langx}" --sysprint="${sysprint}(${pgm}LG)"
 	rc=$?
 	if [ $rc -gt 0 ]; then
@@ -312,7 +312,7 @@ ivpasm() {
 	#
 	# Link assembler code 
 	#
-	mvscmd --pgm=HEWL --args='MAP' --syslib=${ZBREW_CEEHLQ}.SCEELKED --object=${obj} --syslmod=${mod} --sysprint="${list}(${pgm}LK)" --syslin=stdin <<zz
+	mvscmd --pgm=HEWL --args='MAP' --syslib=${ZOSPM_CEEHLQ}.SCEELKED --object=${obj} --syslmod=${mod} --sysprint="${list}(${pgm}LK)" --syslin=stdin <<zz
   INCLUDE OBJECT(DTIVPA)
   NAME DTIVPA(R)
 zz
@@ -330,7 +330,7 @@ zz
 	if [ $rc -gt 0 ]; then
 		cleanup "IVP: Copy of assembler debug command file failed with rc: $rc. Command file retained" "${dbgcmd}" "${pgm}"
 	fi
-	steplib="${mod}:${ZBREW_TGT_HLQ}EQAE20.SEQAMOD:${ZBREW_CEEHLQ}.SCEERUN"
+	steplib="${mod}:${ZOSPM_TGT_HLQ}EQAE20.SEQAMOD:${ZOSPM_CEEHLQ}.SCEERUN"
 	runargs='TEST(ERROR,INSPIN,,*)/'
 	mvscmd --pgm=DTIVPA --args="${runargs}" --steplib="${steplib}" --eqalangx="${langx}" --insplog="${insplog}(${pgm})" --inspin="${dbgcmd}(${pgm})" --sysout="${sysout}(${pgm}G)" 
 
@@ -349,9 +349,9 @@ zz
 #
 createdatasets
 
-srcroot="${ZBREW_REPOROOT}/zbrew-eqa/eqae20/update/src/"
+srcroot="${ZOSPM_REPOROOT}/zospm-eqa/eqae20/update/src/"
 
-zbrewswinstalled asm
+zospmswinstalled asm
 if [ $? -gt 0 ]; then
 	ivpasm
 	if [ $? -gt 0 ]; then
@@ -361,7 +361,7 @@ else
 	echo "Assembler IVP skipped."
 fi
 
-zbrewswinstalled cbc
+zospmswinstalled cbc
 if [ $? -gt 0 ]; then
 	ivpc
 	if [ $? -gt 0 ]; then
@@ -371,7 +371,7 @@ else
 	echo "C IVP skipped."
 fi
 
-zbrewswinstalled igy
+zospmswinstalled igy
 if [ $? -gt 0 ]; then
 	ivpcobol
 	if [ $? -gt 0 ]; then
@@ -381,7 +381,7 @@ else
 	echo "COBOL IVP skipped."
 fi
 
-zbrewswinstalled ibm
+zospmswinstalled ibm
 if [ $? -gt 0 ]; then
 	ivppli
 	if [ $? -gt 0 ]; then

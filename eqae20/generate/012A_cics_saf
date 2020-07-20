@@ -8,15 +8,15 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*}
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*}
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 #!/bin/sh
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetswenv eqae20
-. \$ZBREW_REPOROOT/zbrew-eqa/eqafuncs
+export PATH=${zospmdir}:\$PATH
+. zospmsetswenv eqae20
+. \$ZOSPM_REPOROOT/zospm-eqa/eqafuncs
 export PRODUCT_CODE="$PRODUCT_CODE"
 
 if ! \`supportsCICS \`; then
@@ -44,14 +44,14 @@ EOF
 
 else
 	cat << EOF >>${script} 
-	if [ "\$ZBREW_DFH_SET_MINIMAL_SECURITY" = "YES" ]; then
+	if [ "\$ZOSPM_DFH_SET_MINIMAL_SECURITY" = "YES" ]; then
 		tsocmd "DELUSER CICSUSER" >/dev/null 2>&1
 		issueTSO "ADDUSER CICSUSER NAME('CICSUSER') NOPASSWORD OWNER(SYS1) DFLTGRP(SYS1)"
 		chk "\$?" "Unable to add user CICSUSER"
 
-		tsocmd "RDELETE STARTED \${ZBREW_DFH_PROC}.*" >/dev/null 2>&1
-		issueTSO "RDEFINE STARTED \${ZBREW_DFH_PROC}.* STDATA(USER(CICSUSER) GROUP(SYS1))"
-		chk "\$?" "Unable to define resource \${ZBREW_DFH_PROC}.*"
+		tsocmd "RDELETE STARTED \${ZOSPM_DFH_PROC}.*" >/dev/null 2>&1
+		issueTSO "RDEFINE STARTED \${ZOSPM_DFH_PROC}.* STDATA(USER(CICSUSER) GROUP(SYS1))"
+		chk "\$?" "Unable to define resource \${ZOSPM_DFH_PROC}.*"
 		issueTSO "SETROPTS RACLIST(STARTED) REFRESH"
 		chk "\$?" "Unable to refresh RACLIST(STARTED)"
 	fi

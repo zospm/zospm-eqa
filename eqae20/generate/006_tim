@@ -7,15 +7,15 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*} 
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*} 
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 #!/bin/sh
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetswenv eqae20
-. \$ZBREW_REPOROOT/zbrew-eqa/eqafuncs
+export PATH=${zospmdir}:\$PATH
+. zospmsetswenv eqae20
+. \$ZOSPM_REPOROOT/zospm-eqa/eqafuncs
 export PRODUCT_CODE="$PRODUCT_CODE"
 
 if \`supportsMFI "\$PRODUCT_CODE"\`; then

@@ -7,16 +7,16 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*} 
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*} 
+zospmroot=${zospmdir%/*}
 
 if [ "${verb}" = "DISABLE" ]; then
 	cat << EOF >${script}
 #!/bin/sh
 #set -x
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetenv
+export PATH=${zospmdir}:\$PATH
+. zospmsetenv
 sp=\`secmgr\`
 if [ "\${sp}" != "RCVT" ]; then
 	echo "Security product support for \${sp} not implemented yet" >&2
@@ -36,8 +36,8 @@ cat << EOF >${script}
 #!/bin/sh
 #set -x
 
-export PATH=${zbrewdir}:\$PATH
-. zbrewsetswenv eqae20
+export PATH=${zospmdir}:\$PATH
+. zospmsetswenv eqae20
 
 if [ "\${EQAE20_AUTHDEBUG_USERS}" != "NONE" ] && [ "\${EQAE20_AUTHDEBUG_USERS}" != "" ]; then
 	sp=\`secmgr\`

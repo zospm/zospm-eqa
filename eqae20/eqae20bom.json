@@ -3,19 +3,19 @@
 		"relid":"EQAE20",
 		"datasets":[
                         {
-                                "dsname":"${ZBREW_CEEHLQ}.SCEELKED",
+                                "dsname":"${ZOSPM_CEEHLQ}.SCEELKED",
                                 "zones":["C"]
                         },
                         {
-                                "dsname":"${ZBREW_EZAHLQ}.SEZATCP",
+                                "dsname":"${ZOSPM_EZAHLQ}.SEZATCP",
                                 "zones":["C"]
                         },
                         {
-                                "dsname":"${ZBREW_CSSHLQ}.CSSLIB",
+                                "dsname":"${ZOSPM_CSSHLQ}.CSSLIB",
                                 "zones":["C"]
                         },
                         {
-                                "dsname":"${ZBREW_ISPHLQ}.SISPLOAD",
+                                "dsname":"${ZOSPM_ISPHLQ}.SISPLOAD",
                                 "zones":["C"]
                         },
 			{

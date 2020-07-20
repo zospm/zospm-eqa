@@ -7,15 +7,15 @@ fi
 verb="$1"
 script="$2"
 
-zbrew=`whence zbrew`
-zbrewdir=${zbrew%/*} 
-zbrewroot=${zbrewdir%/*}
+zospm=`whence zospm`
+zospmdir=${zospm%/*} 
+zospmroot=${zospmdir%/*}
 
 cat << EOF >${script}
 	#!/bin/sh
 	#set -x
-	export PATH=${zbrewdir}:\$PATH
-	. zbrewsetenv
+	export PATH=${zospmdir}:\$PATH
+	. zospmsetenv
 EOF
 
 if [ "${verb}" = "DISABLE" ]; then
@@ -26,7 +26,7 @@ EOF
 
 else # ENABLE
 	cat << EOF >>${script}
-	\${ZBREW_REPOROOT}/zbrew-eqa/eqae20/update/ivp
+	\${ZOSPM_REPOROOT}/zospm-eqa/eqae20/update/ivp
 	exit \$?
 EOF
 
